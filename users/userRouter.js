@@ -5,6 +5,8 @@ const router = express.Router();
 
 //importing user db
 const userDB = require('./userDb.js');
+
+//
 const postdb = require("../posts/postDb");
 
 
@@ -78,14 +80,14 @@ router.put('/:id', validateUserId, (req, res) => {
       if (users) {
         res.status(200).json(users);
       } else {
-        res.status(404).json({ message: 'The user could not be found' });
+        res.status(404).json({ message: 'User id not found' });
       }
     })
     .catch(error => {
       // log error to server
       console.log(error);
       res.status(500).json({
-        message: 'The user could not be updated.',
+        message: 'Error getting id.',
       });
     });
 });
@@ -96,7 +98,6 @@ function validateUserId(req, res, next) {
     userDB.getById(userId)
     .then (user => {
         if(!user){
-            console.log("invalid user", user); 
             res.status(400).json( {message: 'Invalid user id.'} );
         }
         else {    
@@ -105,16 +106,40 @@ function validateUserId(req, res, next) {
         }
     })
     .catch(error => {
-        res.status(500).json( {error: 'There was an error retrieving the user from the database.'} );
+        res.status(500).json( {error: 'Error getting id.'} );
     })   
 };
 
 function validateUser(req, res, next) {
+    const userInformation = req.body;   
+    const userName = userInformation.name; 
+
+    if(!req.body){
+        res.status(400).json( {message: 'Missing user data'} )
+    }
+    else if (!userName){
+        res.status(400).json( {message: 'Missing required name field.'} );
+    }
+    else {
+        next();
+    }
+
 
 };
 
 function validatePost(req, res, next) {
+    const postInformation = req.body;
+    const postText = postInformation.text;
 
+    if(!postInformation){
+        res.status(400).json( {message: 'Missing post data.'} )
+    }
+    else if (!postText){
+        res.status(400).json( {message: 'Missing required text field.'} );
+    }
+    else {
+        next();
+    }
 };
 
 module.exports = router;
